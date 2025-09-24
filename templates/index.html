@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load Planner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Load Planner</h1>
+        <form action="/" method="post">
+            <h2>Container Dimensions</h2>
+            <div class="form-group">
+                <label for="container_length">Length</label>
+                <input type="number" id="container_length" name="container_length" required>
+            </div>
+            <div class="form-group">
+                <label for="container_width">Width</label>
+                <input type="number" id="container_width" name="container_width" required>
+            </div>
+            <div class="form-group">
+                <label for="container_height">Height</label>
+                <input type="number" id="container_height" name="container_height" required>
+            </div>
+
+            <h2>Box Details</h2>
+            <div id="box-container">
+                <div class="box-item">
+                    <input type="text" name="box_name[]" placeholder="Box Name" required>
+                    <input type="number" name="box_length[]" placeholder="Length" required>
+                    <input type="number" name="box_width[]" placeholder="Width" required>
+                    <input type="number" name="box_height[]" placeholder="Height" required>
+                    <input type="number" name="box_weight[]" placeholder="Weight" required>
+                    <input type="number" name="box_quantity[]" placeholder="Quantity" required>
+                    <button type="button" class="remove-box-btn">Remove</button>
+                </div>
+            </div>
+            <button type="button" id="add-box-btn">Add Another Box</button>
+            <button type="submit">Plan Load</button>
+        </form>
+
+        {% if results %}
+        <div class="results">
+            <h2>Results</h2>
+            <p>Number of trucks/containers required: {{ num_containers }}</p>
+            {% for result in results %}
+            <div class="result-item">
+                <h3>{{ result.container_name }}</h3>
+                <p>Load Utilization: {{ result.utilization }}</p>
+                <h4>2D Top-View Visualization</h4>
+                <div class="visualization" style="position: relative; width: {{ result.container_width * 2 }}px; height: {{ result.container_depth * 2}}px; border: 2px solid #333; background-color: #f0f0f0;">
+                    {% for item in result.visualization_data %}
+                    <div class="box" title="{{ item.name }}" style="position: absolute; left: {{ item.x * 2 }}px; top: {{ item.y * 2 }}px; width: {{ item.width * 2 }}px; height: {{ item.height * 2 }}px; background-color: rgba(65, 105, 225, 0.7); border: 1px solid #fff;">
+                        <span class="box-label">{{ item.name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('add-box-btn').addEventListener('click', function() {
+            var boxContainer = document.getElementById('box-container');
+            var newBox = document.createElement('div');
+            newBox.className = 'box-item';
+            newBox.innerHTML = `
+                <input type="text" name="box_name[]" placeholder="Box Name" required>
+                <input type="number" name="box_length[]" placeholder="Length" required>
+                <input type="number" name="box_width[]" placeholder="Width" required>
+                <input type="number" name="box_height[]" placeholder="Height" required>
+                <input type="number" name="box_weight[]" placeholder="Weight" required>
+                <input type="number" name="box_quantity[]" placeholder="Quantity" required>
+                <button type="button" class="remove-box-btn">Remove</button>
+            `;
+            boxContainer.appendChild(newBox);
+        });
+
+        document.getElementById('box-container').addEventListener('click', function(e) {
+            if (e.target && e.target.classList.contains('remove-box-btn')) {
+                e.target.parentNode.remove();
+            }
+        });
+    </script>
+</body>
+</html>
