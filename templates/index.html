@@ -13,25 +13,25 @@
             <h2>Container Dimensions</h2>
             <div class="form-group">
                 <label for="container_length">Length</label>
-                <input type="number" id="container_length" name="container_length" required>
+                <input type="number" step="any" id="container_length" name="container_length" required>
             </div>
             <div class="form-group">
                 <label for="container_width">Width</label>
-                <input type="number" id="container_width" name="container_width" required>
+                <input type="number" step="any" id="container_width" name="container_width" required>
             </div>
             <div class="form-group">
                 <label for="container_height">Height</label>
-                <input type="number" id="container_height" name="container_height" required>
+                <input type="number" step="any" id="container_height" name="container_height" required>
             </div>
 
             <h2>Box Details</h2>
             <div id="box-container">
                 <div class="box-item">
                     <input type="text" name="box_name[]" placeholder="Box Name" required>
-                    <input type="number" name="box_length[]" placeholder="Length" required>
-                    <input type="number" name="box_width[]" placeholder="Width" required>
-                    <input type="number" name="box_height[]" placeholder="Height" required>
-                    <input type="number" name="box_weight[]" placeholder="Weight" required>
+                    <input type="number" step="any" name="box_length[]" placeholder="Length" required>
+                    <input type="number" step="any" name="box_width[]" placeholder="Width" required>
+                    <input type="number" step="any" name="box_height[]" placeholder="Height" required>
+                    <input type="number" step="any" name="box_weight[]" placeholder="Weight" required>
                     <input type="number" name="box_quantity[]" placeholder="Quantity" required>
                     <button type="button" class="remove-box-btn">Remove</button>
                 </div>
@@ -43,15 +43,34 @@
         {% if results %}
         <div class="results">
             <h2>Results</h2>
-            <p>Number of trucks/containers required: {{ num_containers }}</p>
+            <p>Number of trucks/containers required: <strong>{{ num_containers }}</strong></p>
+            
+            <h4>Input Summary</h4>
+            <ul class="packed-items-list">
+                {% for box in input_summary %}
+                    <li>
+                        <strong>{{ box.name }} (x{{ box.quantity }})</strong> - Dimensions (L×W×H): 
+                        {{ box.length }} × {{ box.width }} × {{ box.height }}
+                    </li>
+                {% endfor %}
+            </ul>
+
             {% for result in results %}
             <div class="result-item">
                 <h3>{{ result.container_name }}</h3>
-                <p>Load Utilization: {{ result.utilization }}</p>
+                <p><strong>Load Utilization:</strong> {{ result.utilization }}</p>
+                <p><strong>Container Dimensions (L×W×H):</strong> 
+                    {{ result.container_dimensions.length }} × 
+                    {{ result.container_dimensions.width }} × 
+                    {{ result.container_dimensions.height }}
+                </p>
+
                 <h4>2D Top-View Visualization</h4>
-                <div class="visualization" style="position: relative; width: {{ result.container_width * 2 }}px; height: {{ result.container_depth * 2}}px; border: 2px solid #333; background-color: #f0f0f0;">
-                    {% for item in result.visualization_data %}
-                    <div class="box" title="{{ item.name }}" style="position: absolute; left: {{ item.x * 2 }}px; top: {{ item.y * 2 }}px; width: {{ item.width * 2 }}px; height: {{ item.height * 2 }}px; background-color: rgba(65, 105, 225, 0.7); border: 1px solid #fff;">
+                <div class="visualization" style="position: relative; width: {{ result.container_dimensions.width * 2 }}px; height: {{ result.container_dimensions.length * 2}}px; border: 2px solid #333; background-color: #f0f0f0;">
+                    {% for item in result.packed_items_data %}
+                    <div class="box" 
+                         title="{{ item.name }} ({{ item.dimensions.length }}×{{ item.dimensions.width }}×{{ item.dimensions.height }})" 
+                         style="position: absolute; left: {{ item.position[1] * 2 }}px; top: {{ item.position[0] * 2 }}px; width: {{ item.dimensions.width * 2 }}px; height: {{ item.dimensions.length * 2 }}px; background-color: rgba(65, 105, 225, 0.7); border: 1px solid #fff;">
                         <span class="box-label">{{ item.name }}</span>
                     </div>
                     {% endfor %}
@@ -69,10 +88,10 @@
             newBox.className = 'box-item';
             newBox.innerHTML = `
                 <input type="text" name="box_name[]" placeholder="Box Name" required>
-                <input type="number" name="box_length[]" placeholder="Length" required>
-                <input type="number" name="box_width[]" placeholder="Width" required>
-                <input type="number" name="box_height[]" placeholder="Height" required>
-                <input type="number" name="box_weight[]" placeholder="Weight" required>
+                <input type="number" step="any" name="box_length[]" placeholder="Length" required>
+                <input type="number" step="any" name="box_width[]" placeholder="Width" required>
+                <input type="number" step="any" name="box_height[]" placeholder="Height" required>
+                <input type="number" step="any" name="box_weight[]" placeholder="Weight" required>
                 <input type="number" name="box_quantity[]" placeholder="Quantity" required>
                 <button type="button" class="remove-box-btn">Remove</button>
             `;

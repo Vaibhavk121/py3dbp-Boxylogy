@@ -18,6 +18,17 @@ def index():
         box_heights = request.form.getlist('box_height[]')
         box_weights = request.form.getlist('box_weight[]')
         box_quantities = request.form.getlist('box_quantity[]')
+        
+        # Create a summary of the input boxes for display
+        input_summary = []
+        for i in range(len(box_names)):
+            input_summary.append({
+                'name': box_names[i],
+                'length': box_lengths[i],
+                'width': box_widths[i],
+                'height': box_heights[i],
+                'quantity': box_quantities[i]
+            })
 
         items_to_pack = []
         for i in range(len(box_names)):
@@ -57,26 +68,37 @@ def index():
             packed_volume = sum(item.width * item.height * item.depth for item in bin.items)
             utilization = (packed_volume / total_volume) * 100 if total_volume > 0 else 0
             
-            visualization_data = []
+            packed_items_data = []
             for item in bin.items:
-                visualization_data.append({
+                # py3dbp returns dimensions as (depth, width, height)
+                item_dims = item.get_dimension()
+                packed_items_data.append({
                     'name': item.name,
-                    'x': float(item.position[1]), # Corresponds to width axis
-                    'y': float(item.position[0]), # Corresponds to depth/length axis
-                    'width': float(item.get_dimension()[1]),
-                    'height': float(item.get_dimension()[0])
+                    'position': item.position,
+                    'dimensions': {
+                        'length': float(item_dims[0]),
+                        'width': float(item_dims[1]),
+                        'height': float(item_dims[2])
+                    }
                 })
 
             results.append({
                 'container_name': f"Container {i + 1}",
                 'utilization': f"{utilization:.2f}%",
-                'visualization_data': visualization_data,
-                'container_width': bin.width,
-                'container_depth': bin.depth
+                'container_dimensions': {
+                    'length': bin.depth,
+                    'width': bin.width,
+                    'height': bin.height
+                },
+                'packed_items_data': packed_items_data,
             })
 
-
-        return render_template('index.html', results=results, num_containers=len(packed_bins))
+        return render_template(
+            'index.html', 
+            results=results, 
+            num_containers=len(packed_bins), 
+            input_summary=input_summary
+        )
 
     return render_template('index.html', results=None)
 
