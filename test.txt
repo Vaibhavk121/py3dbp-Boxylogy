@@ -1,0 +1,21 @@
+# API Endpoint
+POST http://127.0.0.1:5000/plan
+
+# Headers
+Content-Type: application/json
+
+# Body (raw, JSON)
+{
+  "container_length": 100,
+  "container_width": 50,
+  "container_height": 50,
+  "bigger_first": true,
+  "distribute_items": true,
+  "rotation": true,
+  "box_name": ["BoxA", "BoxB"],
+  "box_length": [30, 40],
+  "box_width": [20, 30],
+  "box_height": [10, 20],
+  "box_weight": [5, 10],
+  "box_quantity": [2, 1]
+}
